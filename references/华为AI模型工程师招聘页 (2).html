@@ -640,13 +640,13 @@
     <section id="contact" class="reveal">
       <div class="wrap">
         <p class="section-eyebrow">联系 HR</p>
-        <h2>HR 直通车</h2>
+        <h2>有问题，直接问我们</h2>
         <p class="body-text">岗位匹配度、部门意向怎么填、内推流程——都可以邮件咨询。建议邮件主题写明「姓名 + 意向岗位」，并附上简历。点击按钮即可一键复制邮箱。</p>
 
         <div class="contact-card">
           <div class="contact-meta">
             <span class="label">HR 邮箱</span>
-            <span class="contact-mail" id="hrEmail">chenxiyue1@huawei.com</span>
+            <span class="contact-mail" id="hrEmail">xxx@huawei.com</span>
           </div>
           <button class="btn-copy" id="copyEmailBtn" type="button" data-email="xxx@huawei.com">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -667,7 +667,17 @@
 
         <div class="qr-block">
           <div class="qr-card" id="qrCard">
-            <img src="assets/images/qr_20260820.png" alt="招聘交流群二维码"
+            <!--
+              二维码图片占位：
+              请把实际二维码命名后放到代码仓的  assets/images/xxx.png
+              目录结构（以本 HTML 所在目录为根）：
+                ├─ index.html          ← 本页面
+                └─ assets/
+                   └─ images/
+                      └─ xxx.png       ← 二维码图片（建议 ≥ 500×500，PNG）
+              如果页面部署在子路径下，保持相对路径 assets/images/xxx.png 即可。
+            -->
+            <img src="assets/images/xxx.png" alt="招聘交流群二维码"
                  onerror="document.getElementById('qrCard').classList.add('is-missing')">
             <div class="qr-fallback">
               <span>xxx.png</span>
@@ -676,14 +686,14 @@
             <div class="qr-caption">微信扫码 · 光产品线 AI 招聘交流群</div>
           </div>
 
-          <!-- <div class="qr-notes">
+          <div class="qr-notes">
             <p>当前使用的是占位图 <b>xxx.png</b>。把真实二维码按下面的路径放进代码仓，页面即可自动显示；文件缺失时会退化成虚线占位框，不会出现破图。建议尺寸 500×500 以上的 PNG。</p>
             <div class="path-box">仓库根目录/
 ├─ <b>index.html</b>          ← 本页面
 └─ assets/
    └─ images/
       └─ <b>xxx.png</b>       ← 二维码放这里</div>
-          </div> -->
+          </div>
         </div>
       </div>
     </section>
