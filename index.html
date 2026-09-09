@@ -22,6 +22,7 @@
     --amber:#F5A623;    /* λ4 Agent 工程化 */
     --rose:#F0708C;     /* λ5 推理优化与部署 */
     --red:#C7000B;      /* 品牌红，仅用于核心行动点 */
+    --red-ink:#FF6E76;  /* 深色底上的红色文字，保证可读性 */
 
     --accent:#4FD1E8;
     --accent-soft:rgba(79,209,232,.08);
@@ -53,6 +54,7 @@
     --amber:#B26A00;
     --rose:#D6336C;
     --red:#C7000B;
+    --red-ink:#C7000B;
 
     --accent:#0071e3;
     --accent-soft:rgba(0,113,227,.07);
@@ -295,11 +297,50 @@
   .alert-bar b{ color:var(--amber); font-weight:700; }
   .alert-bar .sub{ display:block; margin-top:8px; font-size:14.5px; color:var(--text-faint); line-height:1.7; }
 
-  .path-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px; align-items:start; }
+  /* ---------- 投递路径：Tab 翻卡 ---------- */
+  .path-tabs{
+    display:flex; gap:8px; margin:0 0 16px; padding:6px;
+    background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:16px; box-shadow:var(--card-shadow);
+  }
+  .path-tab{
+    flex:1 1 0; min-width:0; cursor:pointer; text-align:left;
+    font-family:var(--font-base); font-size:15px; color:var(--text-muted);
+    background:transparent; border:1px solid transparent; border-radius:12px;
+    padding:12px 16px; display:flex; flex-direction:column; gap:3px;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  .path-tab:hover{ color:var(--text); background:var(--field-bg); }
+  .path-tab .tab-idx{ font-size:12.5px; letter-spacing:.04em; color:var(--text-faint); }
+  .path-tab .tab-name{ font-size:16px; font-weight:700; color:inherit; }
+  .path-tab .tab-note{ font-size:12.5px; color:var(--text-faint); }
+  .path-tab.is-active{ background:var(--field-bg); border-color:var(--border); color:var(--text); }
+  .path-tab.is-active .tab-idx{ color:var(--red-ink); }
+  .path-tab.is-active.is-secondary .tab-idx{ color:var(--accent); }
+  .path-tab:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .path-deck{ position:relative; perspective:1600px; }
   .path-card{
     background:var(--bg-panel); border:1px solid var(--border); border-radius:18px;
     padding:clamp(22px, 3.2vw, 28px); box-shadow:var(--card-shadow);
     display:flex; flex-direction:column; gap:14px;
+    position:absolute; top:0; left:0; width:100%;
+    opacity:0; visibility:hidden; transform-origin:50% 50%;
+    transform:rotateY(10deg) translateZ(-60px);
+    transition:opacity .3s ease, transform .45s cubic-bezier(.2,.7,.3,1), visibility 0s .45s;
+  }
+  .path-card.is-active{
+    position:relative; opacity:1; visibility:visible;
+    transform:none; transition:opacity .3s ease, transform .45s cubic-bezier(.2,.7,.3,1), visibility 0s;
+  }
+  .path-card.is-primary{ border-color:rgba(199,0,11,.32); }
+  .path-card.is-primary .btn-row{ margin-top:auto; padding-top:4px; }
+  /* 等高后多出的空间摊给步骤流，连接线保持连续 */
+  .path-card.is-primary .steps{ display:flex; flex-direction:column; flex:1 1 auto; }
+  .path-card.is-primary .steps > li{ flex:1 1 auto; }
+  .path-card.is-primary .steps > li:last-child{ flex:0 0 auto; }
+  @media (prefers-reduced-motion:reduce){
+    .path-card{ transition:none; transform:none; }
   }
   .path-tag{
     align-self:flex-start; font-size:13px; letter-spacing:.02em;
@@ -308,11 +349,43 @@
   .path-card.is-primary .path-tag{ color:var(--red); border-color:rgba(199,0,11,.4); }
   .path-card h3{ font-size:clamp(18px, 2.4vw, 21px); font-weight:700; margin:0; }
   .path-card > p{ color:var(--text-muted); font-size:15px; margin:0; }
-  .mini-steps{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px; }
-  .mini-steps li{ font-size:14.5px; color:var(--text-faint); padding-left:20px; position:relative; line-height:1.7; }
-  .mini-steps li::before{
-    content:""; position:absolute; left:2px; top:11px;
-    width:6px; height:6px; border-radius:50%; background:var(--text-faint);
+
+  /* 路径一：步骤流 */
+  .steps{ list-style:none; counter-reset:step; margin:4px 0 0; padding:0; }
+  .steps li{ position:relative; padding:0 0 20px 46px; }
+  .steps li:last-child{ padding-bottom:0; }
+  .steps li::before{
+    counter-increment:step; content:counter(step);
+    position:absolute; left:0; top:0; width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13.5px; font-weight:700; color:#fff; background:var(--red);
+  }
+  .steps li::after{
+    content:""; position:absolute; left:14.5px; top:36px; bottom:4px; width:1px; background:var(--border);
+  }
+  .steps li:last-child::after{ display:none; }
+  .step-title{ display:block; font-size:15.5px; font-weight:700; color:var(--text); line-height:1.55; padding-top:4px; }
+  .step-desc{ display:block; margin-top:5px; font-size:14.5px; color:var(--text-faint); line-height:1.75; }
+  .steps li.is-key .step-title{ color:var(--red-ink); }
+  .steps li.is-key .step-desc{
+    background:var(--field-bg); border:1px solid rgba(199,0,11,.28);
+    border-radius:12px; padding:10px 13px; margin-top:8px; color:var(--text-muted);
+  }
+  .step-flag{
+    display:inline-block; margin-left:8px; font-size:12px; font-weight:700; letter-spacing:.02em;
+    color:#fff; background:var(--red); border-radius:999px; padding:2px 9px; vertical-align:2px;
+  }
+  .path-hint{
+    display:flex; gap:10px; align-items:flex-start; margin:2px 0 0;
+    font-size:14.5px; color:var(--text-muted); line-height:1.75;
+    background:var(--field-bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px;
+  }
+  .path-hint .link-tab{
+    background:none; border:none; padding:0; font:inherit; color:var(--accent);
+    cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+  }
+  @media (max-width:520px){
+    .path-tabs{ flex-direction:column; }
   }
 
   /* 表单 */
@@ -595,18 +668,54 @@
           </p>
         </div>
 
-        <div class="path-grid">
+        <div class="path-tabs" role="tablist" aria-label="投递路径">
+          <button class="path-tab is-active" type="button" role="tab" id="tab-path1" aria-controls="panel-path1" aria-selected="true">
+            <span class="tab-idx">路径一</span>
+            <span class="tab-name">官网投递</span>
+            <span class="tab-note">必要步骤，先走这条</span>
+          </button>
+          <button class="path-tab is-secondary" type="button" role="tab" id="tab-path2" aria-controls="panel-path2" aria-selected="false" tabindex="-1">
+            <span class="tab-idx">路径二</span>
+            <span class="tab-name">直通 HR</span>
+            <span class="tab-note">强烈建议，官网投递后再走</span>
+          </button>
+        </div>
+
+        <div class="path-deck" id="pathDeck">
           <!-- 路径一：官网投递 -->
-          <div class="path-card is-primary">
-            <span class="path-tag">路径一 （必要步骤）</span>
-            <h3>官网投递</h3>
-            <p>正式流程只认官网。简历进了系统，面试安排才走得动。</p>
-            <ul class="mini-steps">
-              <li>在 career.huawei.com 注册并完成基础信息认证</li>
-              <li>回到上方岗位列表，点进目标职位详情页</li>
-              <li>部门意向选择 ICT BG · 光产品线，确认后提交</li>
-              <li>留意邮箱与站内消息，等待 HR 或用人经理联系</li>
-            </ul>
+          <div class="path-card is-primary is-active" id="panel-path1" role="tabpanel" aria-labelledby="tab-path1">
+            <span class="path-tag">路径一 · 必要步骤</span>
+            <h3>官网投递：五步走完</h3>
+            <p>正式流程只认官网。简历进了系统，面试安排才走得动。按下面五步依次完成，不要跳步。</p>
+
+            <ol class="steps">
+              <li>
+                <span class="step-title">注册并登录华为招聘官网</span>
+                <span class="step-desc">打开 career.huawei.com 注册账号，完成手机与邮箱验证，填好教育经历等基础信息。信息不全会影响后续投递。</span>
+              </li>
+              <li>
+                <span class="step-title">进入目标职位详情页</span>
+                <span class="step-desc">回到本页上方的岗位列表，点击对应岗位的「投递该职位」，直接跳转到官网该职位的详情页。</span>
+              </li>
+              <li>
+                <span class="step-title">选择岗位意向方向</span>
+                <span class="step-desc">同一个职位下有多个岗位意向方向，选择与你背景最匹配的那一项，再查看对应的岗位职责与要求。</span>
+              </li>
+              <li class="is-key">
+                <span class="step-title">部门意向选 ICT BG · 光产品线<span class="step-flag">关键</span></span>
+                <span class="step-desc">同名岗位在多个产品线同期开放。部门意向选错，简历不会流转到本团队，也不会有人跟进。提交前请再核对一次。</span>
+              </li>
+              <li>
+                <span class="step-title">确认提交并持续跟进</span>
+                <span class="step-desc">提交后留意注册邮箱与官网站内消息，等待 HR 或用人经理联系。可在官网个人中心查看投递状态。</span>
+              </li>
+            </ol>
+
+            <p class="path-hint">
+              <span aria-hidden="true">💡</span>
+              <span>官网提交完成后，建议再走一次<button class="link-tab" type="button" data-goto-path="2">路径二 · 直通 HR</button>，让部门 HR 直接跟进你的进度。</span>
+            </p>
+
             <div class="btn-row">
               <a class="btn-solid" data-site-href="careerHome" href="https://career.huawei.com/cn" target="_blank" rel="noopener">前往华为招聘官网 ↗</a>
               <a class="btn-ghost" href="#positions">回到岗位列表</a>
@@ -614,11 +723,10 @@
           </div>
 
           <!-- 路径二：HR 直通 -->
-          <div class="path-card">
-            <span class="path-tag">路径二 （强烈建议）</span>
-            <h3>直通HR</h3>
-            <p>官网投递之外，可以再发一封邮件，部门HR直接跟进进度、答疑。填好下面四项，一键生成规范邮件。</p>
-
+          <div class="path-card" id="panel-path2" role="tabpanel" aria-labelledby="tab-path2">
+            <span class="path-tag">路径二 · 强烈建议</span>
+            <h3>直通 HR</h3>
+            <p>官网投递之外，可以再发一封邮件，部门 HR 直接跟进进度、答疑。填好下面四项，一键生成规范邮件。</p>
             <div class="form-grid">
               <div class="field" id="f-name">
                 <label for="in-name">姓名 <span class="req">*</span></label>
@@ -999,6 +1107,76 @@
       });
 
       updatePreview();
+    })();
+
+    /* ---------- 投递路径 Tab 翻卡 ---------- */
+    (function(){
+      var deck = document.getElementById('pathDeck');
+      if (!deck) return;
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('.path-tab'));
+      var panels = Array.prototype.slice.call(deck.querySelectorAll('.path-card'));
+      if (tabs.length !== panels.length || !tabs.length) return;
+
+      /* 两个面板等高：取自然高度的最大值，锁到容器上 */
+      function equalize(){
+        panels.forEach(function(el){ el.style.minHeight = ''; });
+        var max = 0;
+        panels.forEach(function(el){ max = Math.max(max, el.offsetHeight); });
+        if (!max) return;
+        panels.forEach(function(el){ el.style.minHeight = max + 'px'; });
+        deck.style.minHeight = max + 'px';
+      }
+
+      function activate(index, focusTab){
+        tabs.forEach(function(tab, i){
+          var on = i === index;
+          tab.classList.toggle('is-active', on);
+          tab.setAttribute('aria-selected', on ? 'true' : 'false');
+          tab.tabIndex = on ? 0 : -1;
+          panels[i].classList.toggle('is-active', on);
+        });
+        if (focusTab) tabs[index].focus();
+      }
+
+      tabs.forEach(function(tab, i){
+        tab.addEventListener('click', function(){ activate(i, false); });
+        tab.addEventListener('keydown', function(e){
+          var next = null;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % tabs.length;
+          else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + tabs.length) % tabs.length;
+          else if (e.key === 'Home') next = 0;
+          else if (e.key === 'End') next = tabs.length - 1;
+          if (next === null) return;
+          e.preventDefault();
+          activate(next, true);
+        });
+      });
+
+      document.querySelectorAll('[data-goto-path]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx = parseInt(btn.getAttribute('data-goto-path'), 10) - 1;
+          if (idx >= 0 && idx < tabs.length) {
+            activate(idx, true);
+            deck.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+
+      equalize();
+      window.addEventListener('load', equalize);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(equalize);
+      var t;
+      window.addEventListener('resize', function(){
+        clearTimeout(t);
+        t = setTimeout(equalize, 150);
+      });
+      /* 岗位下拉是动态填充的，选项变化会改变路径二高度 */
+      var jobSel = document.getElementById('in-job');
+      if (jobSel && 'MutationObserver' in window) {
+        new MutationObserver(function(){ equalize(); }).observe(jobSel, { childList: true });
+      }
+      var intro = document.getElementById('in-intro');
+      if (intro) intro.addEventListener('input', equalize);
     })();
 
     /* ---------- 滚动出现动画 ---------- */
